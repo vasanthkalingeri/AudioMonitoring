@@ -1,3 +1,5 @@
+TEST = True #This tests only recording functionality
+
 import bluetooth
 from sys import byteorder
 import wave
@@ -9,13 +11,13 @@ import time
 import sys
 import socket
 import os
+#if TEST is False:
 import eyed3
 from ftplib import FTP
 import time
 from threading import Thread
 import cPickle as pickle
 
-TEST = False
 
 #TO BE USER DEFINED
 #The index of the mic connected to the PI
@@ -78,7 +80,7 @@ def scan():
     i = 0
     while True:
         i += 1
-        if TEST if True:
+        if TEST is True:
             FOUND = True
             time.sleep(4)
         else:            
@@ -106,7 +108,7 @@ def record():
     global MIN_RECORD_TIME, p, RATE, FOUND, COPY_COUNT, COPY_LIMIT, CHECK_DEVICE, index_of_device, FILENAME
     
     print "recording ..."
-    w = wave.open(FILENAME, 'w')
+    w = wave.open(FILENAME, 'wb')
     w.setnchannels(NO_CHANNELS)
     w.setsampwidth(SAMPLE_WIDTH)
     w.setframerate(RATE)
@@ -143,17 +145,18 @@ def add_metadata(macids, present_time):
     present_time = unicode(present_time)
     macid_string = unicode(' , '.join(macids))
 
-    audiofile = eyed3.load(FILENAME)
-    
-    #set the tags of the metadata
-    audiofile.tag.artist = unicode(present_time)
-    audiofile.tag.album = unicode(CARE_HOME)
-    #audiofile.tag.genre = unicode(RESIDENT_ID + "," + macid_string)
-    audiofile.tag.genre = unicode(macid_string)
-    audiofile.tag.description = unicode(RESIDENT_ID)
-    audiofile.tag.save()
-    
-    MACID = "None"
+    if TEST is False:    
+        audiofile = eyed3.load(FILENAME)
+        
+        #set the tags of the metadata
+        audiofile.tag.artist = unicode(present_time)
+        audiofile.tag.album = unicode(CARE_HOME)
+        #audiofile.tag.genre = unicode(RESIDENT_ID + "," + macid_string)
+        audiofile.tag.genre = unicode(macid_string)
+        audiofile.tag.description = unicode(RESIDENT_ID)
+        audiofile.tag.save()
+        
+        MACID = "None"
     
     print "Done adding metadata.."
     
@@ -199,7 +202,7 @@ def main():
             print "Finished recording"
             add_metadata(MACID, present_time)
             print """Now we send the file across server"""
-            if Test is False:
+            if TEST is False:
                 nt = Thread(target=send_mp3_file, args=(SERVER, USERNAME, PASSWORD))
                 nt.start()
             else:
