@@ -201,13 +201,11 @@ def main():
             record()
             print "Finished recording"
             add_metadata(MACID, present_time)
-            
+            print """Now we send the file across server"""
             if TEST is False:
-                print """Now we send the file across server"""
                 nt = Thread(target=send_mp3_file, args=(SERVER, USERNAME, PASSWORD))
                 nt.start()
             else:
-                print "Press Ctrl+Z"
                 break
 
 main()
