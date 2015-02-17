@@ -197,7 +197,7 @@ def main():
     while True:
         if FOUND is True:
             present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
-            FILENAME = RESIDENT_ID + present_time + ".mp3"
+            FILENAME = RESIDENT_ID + present_time + ".wav"
             record()
             print "Finished recording"
             add_metadata(MACID, present_time)

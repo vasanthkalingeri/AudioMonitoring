@@ -11,8 +11,8 @@ import time
 import sys
 import socket
 import os
-#if TEST is False:
-import eyed3
+if TEST is False:
+    import eyed3
 from ftplib import FTP
 import time
 from threading import Thread
@@ -197,15 +197,17 @@ def main():
     while True:
         if FOUND is True:
             present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
-            FILENAME = RESIDENT_ID + present_time + ".mp3"
+            FILENAME = RESIDENT_ID + present_time + ".wav"
             record()
             print "Finished recording"
             add_metadata(MACID, present_time)
-            print """Now we send the file across server"""
+            
             if TEST is False:
+                print """Now we send the file across server"""
                 nt = Thread(target=send_mp3_file, args=(SERVER, USERNAME, PASSWORD))
                 nt.start()
             else:
+                print "Press Ctrl+Z"
                 break
 
 main()
