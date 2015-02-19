@@ -11,8 +11,8 @@ import time
 import sys
 import socket
 import os
-#if TEST is False:
-import eyed3
+if TEST is False:
+    import eyed3
 from ftplib import FTP
 import time
 from threading import Thread
@@ -197,7 +197,7 @@ def main():
     while True:
         if FOUND is True:
             present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
-            FILENAME = RESIDENT_ID + present_time + ".wav"
+            FILENAME = RESIDENT_ID + present_time + ".flac"
             record()
             print "Finished recording"
             add_metadata(MACID, present_time)

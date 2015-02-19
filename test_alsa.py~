@@ -1,4 +1,4 @@
-TEST = True #This tests only recording functionality
+TEST = False #This tests only recording functionality
 
 import bluetooth
 from sys import byteorder
@@ -197,7 +197,7 @@ def main():
     while True:
         if FOUND is True:
             present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
-            FILENAME = RESIDENT_ID + present_time + ".wav"
+            FILENAME = RESIDENT_ID + present_time + ".flac"
             record()
             print "Finished recording"
             add_metadata(MACID, present_time)
