@@ -1,4 +1,4 @@
-TEST = False #This tests only recording functionality
+TEST = True #This tests only recording functionality
 
 import bluetooth
 from sys import byteorder
