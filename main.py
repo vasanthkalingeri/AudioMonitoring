@@ -1,4 +1,4 @@
-TEST = True #This tests only recording functionality
+TEST = False #This tests only recording functionality
 
 import bluetooth
 from sys import byteorder
@@ -34,12 +34,12 @@ SERVER = "ftp.rodwellfarm.co.uk"
 USERNAME = "rodwca450762"
 PASSWORD = "ROd$g20{{rd3("
 DIRECTORY = "resilink/am" #This is the directory where everything should go to in the server
-
+ALLOW_FILENAME = "list.txt"
 
 #CONFIGURATIONS FOR RECORDING(DO NOT CHANGE)
 #DEFAULT CONFIGURATIONS
 RATE = 44100
-NO_CHANNELS = 1
+NO_CHANNELS = 2
 SAMPLE_WIDTH = 2
 CHUNK_SIZE = 1024
 
@@ -88,10 +88,13 @@ def scan():
                 macid = bluetooth.discover_devices()
                 print macid
                 if len(macid) >= 1:
-                    MACID = macid
-                    NOT_FOUND_COUNT = 0
-                    print "Device found"
-                    FOUND = True
+                    for i in macid:
+                        if i in open(ALLOW_FILENAME).readlines():
+                            MACID = i
+                            NOT_FOUND_COUNT = 0
+                            print "Device found"
+                            FOUND = True
+                            break
                 else:
                     print "Device out of range", NOT_FOUND_COUNT
                     FOUND = False
