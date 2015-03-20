@@ -3,7 +3,7 @@ ALLOW_FILENAME = "list.txt"
 
 def macid_config():
  
-    nearby_devices = discover_devices()W
+    nearby_devices = discover_devices()
     print "found %d devices" % len(nearby_devices)
 
     print nearby_devices

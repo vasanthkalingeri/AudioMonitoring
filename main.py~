@@ -36,7 +36,6 @@ DIRECTORY = "resilink/am" #This is the directory where everything should go to i
 ALLOW_FILENAME = "list.txt"
 ALLOWED = open(ALLOW_FILENAME).readlines()
 ALLOWED = [i.strip() for i in ALLOWED]
-
 #CONFIGURATIONS FOR RECORDING(DO NOT CHANGE)
 #DEFAULT CONFIGURATIONS
 RATE = 44100
