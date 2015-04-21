@@ -1,19 +1,22 @@
-TEST = False #This tests only recording functionality
+TEST_RECORD = False  #This tests only recording functionality
+TEST_BLUETOOTH = False
 
 import bluetooth
 import time
-#from sys import byteorder
-#import wave
-#import alsaaudio
-#import mutagen
-#import mutagen.mp3
-#from mutagen.id3 import ID3, TPE2, TCMP, APIC, TAL, TRCK
-#import sys
-#import socket
-#import os
-#if TEST is False:
-#    import eyed3
-#from ftplib import FTP
+from sys import byteorder
+import wave
+import alsaaudio
+import mutagen
+import mutagen.mp3
+from mutagen.id3 import ID3, TPE2, TCMP, APIC, TAL, TRCK
+import sys
+import socket
+import os
+
+if TEST_RECORD is False:
+    import eyeD3 as eyed3
+    
+from ftplib import FTP
 from threading import Thread
 import cPickle as pickle
 
@@ -47,7 +50,7 @@ CHUNK_SIZE = 1024
 
 #CONFIGURATIONS FOR ALSA
 #inp = alsaaudio.PCM(alsaaudio.PCM_CAPTURE)
-if TEST is True:
+if TEST_RECORD is True:
     card = 'sysdefault:CARD=Generic_1'#Mic'
 else:
     card = 'sysdefault:CARD=Mic'
@@ -67,7 +70,7 @@ def configure_alsa():
 FOUND = False
 FILENAME = None
 ENTER = False
-MACID = "None"
+MACID = []
 NOT_FOUND_COUNT = 0
 CHECK_DEVICE = False
 
@@ -82,27 +85,26 @@ def scan():
     i = 0
     while True:
         i += 1
-        if TEST is True:
+        if TEST_RECORD is True:
             FOUND = True
             time.sleep(4)
         else:            
             try:
                 macid = bluetooth.discover_devices()
-                print macid
-                if len(macid) >= 1:
-                    
-                    for mac in macid:
-                        if mac in ALLOWED:
-                            MACID = mac
-                            NOT_FOUND_COUNT = 0
-                            print "Device found"
-                            FOUND = True
-                            break
-                    if not FOUND:
-                        print "Not in the list of devices"
-                else:
+#                print macid
+                NOT_FOUND_COUNT = 1
+                for mac in macid:
+                    if mac in ALLOWED:
+                        MACID.append(mac)
+                        NOT_FOUND_COUNT = 0
+                        print "Device found"
+                        FOUND = True
+                        break
+                if NOT_FOUND_COUNT != 0:
                     print "Device out of range", NOT_FOUND_COUNT
                     FOUND = False
+                    NOT_FOUND_COUNT += 1
+                    MACID = []
             except:
                 print "Bluetooth device is not connected correctly, please connect it within 10 seconds"
                 time.sleep(15)
@@ -113,7 +115,7 @@ def scan():
 
 def record():
 
-    global MIN_RECORD_TIME, p, RATE, FOUND, COPY_COUNT, COPY_LIMIT, CHECK_DEVICE, index_of_device, FILENAME
+    global MIN_RECORD_TIME, p, RATE, FOUND, COPY_COUNT, COPY_LIMIT, CHECK_DEVICE, index_of_device, FILENAME, MACID
     
     print "recording ..."
     w = wave.open(FILENAME, 'wb')
@@ -123,6 +125,8 @@ def record():
     
     record_limit = MIN_RECORD_TIME
     
+    macids = MACID #This is the macids for which the recording is being made
+    
     while FOUND is True:
         past_time = time.time()
         delta_time = 0
@@ -131,9 +135,10 @@ def record():
             l, data = inp.read()
             w.writeframes(data)
         print "done", FOUND
-        if TEST is True:
+        if TEST_RECORD is True:
             FOUND = False
     w.close()
+    return macids
 #    inp.close()
 
 def add_metadata(macids, present_time):
@@ -151,9 +156,10 @@ def add_metadata(macids, present_time):
     id3.save(FILENAME)
     
     present_time = unicode(present_time)
-    macid_string = unicode(' , '.join(macids))
+    macids = ','.join(macids)
+    macid_string = unicode(macids)
 
-    if TEST is False:    
+    if TEST_RECORD is False:    
         audiofile = eyed3.load(FILENAME)
         
         #set the tags of the metadata
@@ -164,7 +170,7 @@ def add_metadata(macids, present_time):
         audiofile.tag.description = unicode(RESIDENT_ID)
         audiofile.tag.save()
         
-        MACID = "None"
+        MACID = []
     
     print "Done adding metadata.."
     
@@ -200,22 +206,25 @@ def main():
     t = Thread(target=scan)
     t.start()
     time.sleep(4)
-#    print "Now Starting operations"
-#    configure_alsa()
-#    while True:
-#        if FOUND is True:
-#            present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
-#            FILENAME = RESIDENT_ID + present_time + ".flac"
-#            record()
-#            print "Finished recording"
-#            add_metadata(MACID, present_time)
-#            
-#            if TEST is False:
-#                print """Now we send the file across server"""
-#                nt = Thread(target=send_mp3_file, args=(SERVER, USERNAME, PASSWORD))
-#                nt.start()
-#            else:
-#                print "Press Ctrl+Z"
-#                break
+    print "Now Starting operations"
+    configure_alsa()
+    if TEST_BLUETOOTH:
+        return
+        
+    while True:
+        if FOUND is True:
+            present_time = time.strftime("%d-%m-%Y_%H:%M:%S")
+            FILENAME = RESIDENT_ID + present_time + ".mp3"
+            macids = record()
+            print "Finished recording"
+            add_metadata(macids, present_time)
+            
+            if TEST_RECORD is False:
+                print """Now we send the file across server"""
+                nt = Thread(target=send_mp3_file, args=(SERVER, USERNAME, PASSWORD))
+                nt.start()
+            else:
+                print "Press Ctrl+Z"
+                break
 
 main()
