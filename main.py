@@ -14,7 +14,7 @@ import socket
 import os
 
 if TEST_RECORD is False:
-    import eyeD3 as eyed3
+    import eyed3
     
 from ftplib import FTP
 from threading import Thread
@@ -53,7 +53,7 @@ CHUNK_SIZE = 1024
 if TEST_RECORD is True:
     card = 'sysdefault:CARD=Generic_1'#Mic'
 else:
-    card = 'sysdefault:CARD=Mic'
+    card = 'sysdefault:CARD=Direct'
 inp = None
 
 def configure_alsa():
