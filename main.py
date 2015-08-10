@@ -1,5 +1,5 @@
 TEST_RECORD = False  #This tests only recording functionality
-TEST_BLUETOOTH = False
+TEST_BLUETOOTH = True
 
 import bluetooth
 import time
@@ -81,6 +81,7 @@ def nearby(mac):
     
     """Returns True if the device is nearby, the distance is set based on RSSI"""    
     rssi = bluetooth_rssi(mac)
+    print rssi
     if rssi >= RSSI:
         return True
     else:
@@ -105,7 +106,7 @@ def scan():
 #                print macid
                 NOT_FOUND_COUNT = 1
                 for mac in macid:
-                    if mac in ALLOWED and near(mac):
+                    if nearby(mac) and (mac in ALLOWED):
                         MACID.append(mac)
                         NOT_FOUND_COUNT = 0
                         print "Device found"
