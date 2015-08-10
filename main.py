@@ -53,7 +53,7 @@ CHUNK_SIZE = 1024
 if TEST_RECORD is True:
     card = 'sysdefault:CARD=Generic_1'#Mic'
 else:
-    card = 'sysdefault:CARD=Direct'
+    card = 'sysdefault:CARD=Mic'
 inp = None
 
 def configure_alsa():
@@ -73,9 +73,19 @@ ENTER = False
 MACID = []
 NOT_FOUND_COUNT = 0
 CHECK_DEVICE = False
+RSSI = 0 #Low value indicates device is far
 
 MIN_RECORD_TIME *= 60
+
+def nearby(mac):
     
+    """Returns True if the device is nearby, the distance is set based on RSSI"""    
+    rssi = bluetooth_rssi(mac)
+    if rssi >= RSSI:
+        return True
+    else:
+        return False
+            
 def scan():
     
     global FOUND, MACID, NOT_FOUND_COUNT, MIN_RECORD_TIME, CHECK_DEVICE, ALLOWED
@@ -91,10 +101,11 @@ def scan():
         else:            
             try:
                 macid = bluetooth.discover_devices()
+                
 #                print macid
                 NOT_FOUND_COUNT = 1
                 for mac in macid:
-                    if mac in ALLOWED:
+                    if mac in ALLOWED and near(mac):
                         MACID.append(mac)
                         NOT_FOUND_COUNT = 0
                         print "Device found"
